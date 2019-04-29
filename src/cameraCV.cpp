@@ -4,7 +4,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <iostream>
-int count =0 ;
+int count = 0 ;
 camera::camera() : it_(n) {
 	front = it_.subscribe("ardrone/front/image_raw",10,&camera::imageFront, this);
 	redColor = n.advertise<std_msgs::String>("red",10);

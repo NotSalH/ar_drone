@@ -9,7 +9,10 @@
 #include "sensor_msgs/CameraInfo.h"
 #include "std_msgs/Empty.h"
 #include <image_transport/image_transport.h>
-
+/*
+Autoflight mode allows the drone to run autonomously until it find a specifed object. In this case it would run
+until the color red is located.
+*/
 class Drone{
 private: 
 	ros::NodeHandle n;

@@ -1,0 +1,47 @@
+#include <ros/ros.h>
+#include "geometry_msgs/Twist.h"
+#include "sensor_msgs/Joy.h"
+#include "std_msgs/Empty.h"
+
+geometry_msgs::Twist vel;
+std_msgs::Empty em;
+//std_msgs::Empty str;
+
+void joystickOverride(const sensor_msgs::Joy::ConstPtr& joy){
+	vel.linear.x = joy->axes[0];
+	vel.linear.y = joy->axes[1];
+	//vel.linear.z = joy->buttons[0];
+	//vel.linear.z = joy->buttons[1] * -1;
+	if(joy->axes[0] == 1){
+		flight.publish(em);
+	}
+	if(joy->axes[1] == 1){
+		land.publish(em);
+		joy->axes[1] = 0;
+	}
+}
+
+int main( int argc, char **argv ){
+	ros::init(argc, argv, "flight");
+	ros::NodeHandle n;
+	//ros::Publisher pub1 = n.advertise<std_msgs::Empty>("ardrone/takeoff",1000,&takeOff);
+	ros::Publisher pub = n.advertise<geometry_msgs::Twist>("cmd_vel",1000);
+	ros::Publisher flight = n.advertise<std_msgs::Empty>("ardrone/takeoff",1000,true);
+	ros::Publisher land = n.advertise<std_msgs::Empty>("ardrone/land",1000,true);
+	ros::Subscriber sub1 = n.subscribe<sensor_msgs::Joy>("joy",10,&joystickOverride);
+	ros::Rate loop_rate(50);
+	int count = 0;
+	while(ros::ok()){
+		pub.publish(vel);
+		if(count < 100){
+			flight.publish(em);
+		}
+		else{	
+			land.publish(em);
+		}
+		//land.publish(em);
+		ros::spinOnce();
+		loop_rate.sleep();
+	}
+}
+

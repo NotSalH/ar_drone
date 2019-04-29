@@ -2,10 +2,11 @@
 #include "ardrone_autonomy/Navdata.h"
 #define MAX_STREAM_WIDTH 640
 #define MAX_STREAM_HEIGHT 360
+/*
+Manual Flight mode allows the user to take controll over the drone using the joy joy_node topic
 
-Drone::~Drone(){
-	std::cout<<"Object Destroyed" << "\n";
-}
+*/
+
 Drone::Drone() : it_(n), loop_rate(10){
 	xyMove = n.advertise<geometry_msgs::Twist>("cmd_vel",10,true);
 	flight = n.advertise<std_msgs::Empty>("ardrone/takeoff",1,true);
@@ -13,6 +14,11 @@ Drone::Drone() : it_(n), loop_rate(10){
 	camFront = it_.advertise("ardrone/front/image_raw",10);
 	joyNode = n.subscribe<sensor_msgs::Joy>("joy",10, &Drone::joyStick, this);
 }
+
+Drone::~Drone(){
+	std::cout<<"Object Destroyed" << "\n";
+}
+
 void Drone::setZero(){
 	vel.angular.x=0;
 	vel.angular.y=0;
@@ -23,6 +29,7 @@ void Drone::setZero(){
 	xyMove.publish(vel);
 	std::cout<<"stoped"<< "\n";
 }
+
 void Drone::publishVideo(){
 	image.width = MAX_STREAM_WIDTH;
 	image.height = MAX_STREAM_HEIGHT;
@@ -174,5 +181,3 @@ int main( int argc, char **argv){
 		drone.loop_rate.sleep();
 	}
 }
-
-
