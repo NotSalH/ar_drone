@@ -1,23 +1,17 @@
-#include <ar_drone/flight.h>
+#include <ar_drone/manualFlight.h>
 #include "ardrone_autonomy/Navdata.h"
-#include <iostream>
 #define MAX_STREAM_WIDTH 640
 #define MAX_STREAM_HEIGHT 360
-//Destructor for drone
+
 Drone::~Drone(){
 	std::cout<<"Object Destroyed" << "\n";
 }
-//Initilizes image transport and sets up subs and pubs
 Drone::Drone() : it_(n), loop_rate(10){
-	xyMove = n.advertise<geometry_msgs::Twist>("cmd_vel",100,true);
+	xyMove = n.advertise<geometry_msgs::Twist>("cmd_vel",10,true);
 	flight = n.advertise<std_msgs::Empty>("ardrone/takeoff",1,true);
 	land = n.advertise<std_msgs::Empty>("ardrone/land",10,true);
-	camFront = it_.advertise("ardrone/front/image_raw",1);
-	camBottom = it_.advertise("ardrone/bottom/image_raw",1);
+	camFront = it_.advertise("ardrone/front/image_raw",10);
 	joyNode = n.subscribe<sensor_msgs::Joy>("joy",10, &Drone::joyStick, this);
-
-	
-
 }
 void Drone::setZero(){
 	vel.angular.x=0;
@@ -27,9 +21,8 @@ void Drone::setZero(){
 	vel.linear.y =0;
 	vel.linear.z =0;
 	xyMove.publish(vel);
-	std::cout<<"stop"<< "\n";
+	std::cout<<"stoped"<< "\n";
 }
-
 void Drone::publishVideo(){
 	image.width = MAX_STREAM_WIDTH;
 	image.height = MAX_STREAM_HEIGHT;
@@ -40,55 +33,50 @@ void Drone::publishVideo(){
 	ci.width = MAX_STREAM_WIDTH;
 	ci.height = MAX_STREAM_HEIGHT;
 	camFront.publish(image);
-	camBottom.publish(image);
 }
-
 void Drone::moveForward(){
 	vel.linear.x = .5;
 	xyMove.publish(vel);
 }
-
 void Drone::moveBackwards(){
 	vel.linear.x = -.5;
 	xyMove.publish(vel);
 }
-
 void Drone::moveRight(){
 	vel.linear.y = .5;
 	xyMove.publish(vel);
 }
-
 void Drone::moveLeft(){
 	vel.linear.y = -.5;
 	xyMove.publish(vel);
 }
-
 void Drone::moveUp(){
-	vel.linear.z = .5;
+	vel.linear.z = .35;
 	xyMove.publish(vel);
 }
-
 void Drone::moveDown(){
-	vel.linear.z = -.5;
+	vel.linear.z = -.35;
 	xyMove.publish(vel);
 }
-
-
+void Drone::turnLeft(){
+	vel.angular.z = .5;
+	xyMove.publish(vel);
+}
+void Drone::turnRight(){
+	vel.angular.z = -.5;
+	xyMove.publish(vel);
+}
 void Drone::joyStick(const sensor_msgs::Joy::ConstPtr& joy){
-	
-	
 	//Hover
 	if(joy->buttons[0] == 1){
 		std::cout << "Hover" << "\n";
 		flight.publish(em);
-		//setZero();
 	} 
 	//Land
 	if(joy->buttons[1] == 1){
 		std::cout << "Land" << "\n";
 		land.publish(em);
 	} 
-
 	//X+
 	if(joy->axes[0] > .5){
 		double start = ros::Time::now().toSec();
@@ -98,7 +86,6 @@ void Drone::joyStick(const sensor_msgs::Joy::ConstPtr& joy){
 			ros::spinOnce();
 			loop_rate.sleep();
 		}
-
 	}
 	//X-
 	else if(joy->axes[0] < -.5){
@@ -108,9 +95,7 @@ void Drone::joyStick(const sensor_msgs::Joy::ConstPtr& joy){
 			moveLeft();
 			ros::spinOnce();
 			loop_rate.sleep();
-		
 		}
-	
 	}
 	//Y+
 	else if(joy->axes[1] > .5){
@@ -135,40 +120,56 @@ void Drone::joyStick(const sensor_msgs::Joy::ConstPtr& joy){
 		}
 
 	}
-	else{
-		setZero();
+	//angular Z+
+	else if(joy->buttons[7] == 1){
+		double start = ros::Time::now().toSec();
+		while((double)ros::Time::now().toSec() < start+.5){
+			std::cout<<"Y Neg" << "\n";
+			turnLeft();
+			ros::spinOnce();
+			loop_rate.sleep();
+		}
+	}
+	//angular Z-
+	else if(joy->buttons[8] == 1){
+		double start = ros::Time::now().toSec();
+		while((double)ros::Time::now().toSec() < start+.5){
+			std::cout<<"Y Neg" << "\n";
+			turnRight();
+			ros::spinOnce();
+			loop_rate.sleep();
+		}
 	}
 	//Z+
-	/*else if(joy->axes[3] > 0){
+	else if(joy->buttons[3] == 1){
 		double start = ros::Time::now().toSec();
-		while((double)ros::Time::now().toSec() < start+1){
-			std::cout<<"Z pos" << "\n";
+		while((double)ros::Time::now().toSec() < start+.025){
+			std::cout<<"UP" << "\n";
 			moveUp();
 			ros::spinOnce();
 			loop_rate.sleep();
-			break;
 		}
 	}
 	//Z-
-	else if(joy->axes[3] < 0){
+	else if(joy->buttons[4] == 1){
 		double start = ros::Time::now().toSec();
-		while((double)ros::Time::now().toSec() < start+1){
-			std::cout<<"Z neg" << "\n";
+		while((double)ros::Time::now().toSec() < start+.025){
+			std::cout<<"DOWN" << "\n";
 			moveDown();
 			ros::spinOnce();
 			loop_rate.sleep();
-			break;
-		}
-	}*/
-}
 
-int main( int argc, char **argv ){
+		}
+	}
+	else{
+		setZero();
+	}
+}
+int main( int argc, char **argv){
 	ros::init(argc,argv,"flight");
-	
 	Drone drone;
-	
+	drone.publishVideo();
 	while(ros::ok()){
-		drone.publishVideo();
 		ros::spinOnce();
 		drone.loop_rate.sleep();
 	}
