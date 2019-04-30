@@ -58,8 +58,7 @@ void camera::detectFace(cv::Mat mat){
     cv::cvtColor( mat, frame_gray, cv::COLOR_BGR2GRAY );
     cv::equalizeHist( frame_gray, frame_gray );
     face_cascade.detectMultiScale( frame_gray, faces, 1.1, 2, 0 | cv::CASCADE_SCALE_IMAGE, cv::Size(30, 30) );
-    for( size_t i = 0; i < faces.size(); i++ )
-    {
+    for( size_t i = 0; i < faces.size(); i++ ){
         cv::Point center( faces[i].x + faces[i].width/2, faces[i].y + faces[i].height/2 );
         cv::rectangle(mat, cv::Point(faces[i].x , faces[i].y) ,cv::Point(faces[i].x+faces[i].width, faces[i].y+faces[i].height),cv::Scalar(255,0,0),1,4);
         std::cout<< "Face detected\n" ;
