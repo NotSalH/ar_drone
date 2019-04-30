@@ -17,7 +17,6 @@ private:
 	ros::Publisher land;
 	image_transport::Publisher camFront;
 	ros::Subscriber joyNode;
-	ros::Subscriber redSub;
 	void joyStick(const sensor_msgs::Joy::ConstPtr& joy);
 	void moveForward();
 	void moveBackwards();

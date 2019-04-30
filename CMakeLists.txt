@@ -131,15 +131,18 @@ include_directories(${catkin_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
 add_executable(manualFlight src/manualFlight.cpp)
 add_executable(cameraCV src/cameraCV.cpp)
 add_executable(autoFlight src/autoFlight.cpp)
+add_executable(attackMode src/attackMode.cpp)
+
 
 add_dependencies(manualFlight ${PROJECT_NAME}_gencfg)
 add_dependencies(cameraCV ${PROJECT_NAME}_gencfg)
 add_dependencies(autoFlight ${PROJECT_NAME}_gencfg)
+add_dependencies(attackMode ${PROJECT_NAME}_gencfg)
 
 target_link_libraries(manualFlight ${catkin_LIBRARIES})
 target_link_libraries(cameraCV ${catkin_LIBRARIES})
 target_link_libraries(autoFlight ${catkin_LIBRARIES})
-
+target_link_libraries(attackMode ${catkin_LIBRARIES})
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/ar_drone.cpp
@@ -208,7 +211,7 @@ install(DIRECTORY include/${PROJECT_NAME}/
 #############
 ## Testing ##
 #############
-install(TARGETS manualFlight  autoFlight cameraCV
+install(TARGETS manualFlight  autoFlight cameraCV attackMode
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

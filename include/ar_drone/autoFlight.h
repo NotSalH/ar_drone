@@ -1,6 +1,5 @@
 #ifndef __AUTOFLIGHT_H__
 #define __AUTOFLIGHT_H__
-
 #include <ros/ros.h>
 #include "sensor_msgs/Joy.h"
 #include "sensor_msgs/Image.h"
@@ -9,10 +8,7 @@
 #include "sensor_msgs/CameraInfo.h"
 #include "std_msgs/Empty.h"
 #include <image_transport/image_transport.h>
-/*
-Autoflight mode allows the drone to run autonomously until it find a specifed object. In this case it would run
-until the color red is located.
-*/
+
 class Drone{
 private: 
 	ros::NodeHandle n;
